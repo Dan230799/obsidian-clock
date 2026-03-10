@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reloj Colorido Transparente</title>
+  <style>
+    /* Fondo completamente transparente */
+    body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: white;
+    }
+
+    /* Contenedor principal del reloj */
+    .progress-clock {
+      position: relative;
+      width: 15em;
+      height: 15em;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .progress-clock button {
+      border: none;
+      background: transparent;
+      color: white;
+      transition: color 0.3s ease, opacity 0.3s ease;
+      cursor: pointer;
+    }
+
+    /* Ajuste fino de la posición central */
+    .progress-clock__time-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .progress-clock__time-date {
+      font-size: 0.8em;
+      margin-bottom: 0.6em;
+      text-transform: capitalize;
+      display: block;
+    }
+
+    .progress-clock__time {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2em;
+    }
+
+    .progress-clock__time-digit,
+    .progress-clock__time-colon {
+      font-size: 1.8em;
+      transition: opacity 0.3s ease, color 0.3s ease;
+    }
+
+    .progress-clock__time-ampm {
+      display: block;
+      margin-top: 0.5em;
+      font-size: 0.8em;
+      transition: opacity 0.3s ease;
+    }
+
+    svg.progress-clock__rings {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .progress-clock__rings g {
+      transition: opacity 0.3s ease;
+    }
+
+    /* Colores de unidades */
+    .color-day { color: hsl(333, 90%, 60%) !important; }
+    .color-hour { color: hsl(43, 90%, 60%) !important; }
+    .color-minute { color: hsl(213, 90%, 60%) !important; }
+    .color-second { color: hsl(273, 90%, 60%) !important; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React, ReactDOM, Babel y Moment -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/es.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function ColorfulClock() {
+      const [date, setDate] = useState(new Date());
+
+      useEffect(() => {
+        const timer = setInterval(() => setDate(new Date()), 1000);
+        return () => clearInterval(timer);
+      }, []);
+
+      moment.locale('es');
+      const now = moment(date);
+      const formatDate = now.format("dddd-MMMM-D-H-mm-ss-a").split("-");
+
+      const dayProgress = now.date() / now.daysInMonth();
+      const hourProgress = now.hours() / 24;
+      const minProgress = now.minutes() / 60;
+      const secProgress = now.seconds() / 60;
+
+      return (
+        <div id="clock" className="progress-clock">
+          <div className="progress-clock__time-container">
+            <button className="progress-clock__time-date" data-group="d" type="button">
+              <small>{formatDate[0]}</small><br />
+              <span>{formatDate[1]}</span> {formatDate[2]}
+            </button>
+
+            <div className="progress-clock__time">
+              <button className="progress-clock__time-digit" data-group="h">{formatDate[3]}</button>
+              <span className="progress-clock__time-colon">:</span>
+              <button className="progress-clock__time-digit" data-group="m">{formatDate[4]}</button>
+              <span className="progress-clock__time-colon">:</span>
+              <button className="progress-clock__time-digit" data-group="s">{formatDate[5]}</button>
+            </div>
+
+            <span className="progress-clock__time-ampm">{formatDate[6]}</span>
+          </div>
+
+          <svg className="progress-clock__rings" viewBox="0 0 256 256">
+            <defs>
+              <linearGradient id="pc-red" x1="1" y1="0.5" x2="0" y2="0.5">
+                <stop offset="0%" stopColor="hsl(343,90%,55%)" />
+                <stop offset="100%" stopColor="hsl(323,90%,55%)" />
+              </linearGradient>
+              <linearGradient id="pc-yellow" x1="1" y1="0.5" x2="0" y2="0.5">
+                <stop offset="0%" stopColor="hsl(43,90%,55%)" />
+                <stop offset="100%" stopColor="hsl(23,90%,55%)" />
+              </linearGradient>
+              <linearGradient id="pc-blue" x1="1" y1="0.5" x2="0" y2="0.5">
+                <stop offset="0%" stopColor="hsl(223,90%,55%)" />
+                <stop offset="100%" stopColor="hsl(203,90%,55%)" />
+              </linearGradient>
+              <linearGradient id="pc-purple" x1="1" y1="0.5" x2="0" y2="0.5">
+                <stop offset="0%" stopColor="hsl(283,90%,55%)" />
+                <stop offset="100%" stopColor="hsl(263,90%,55%)" />
+              </linearGradient>
+            </defs>
+
+            <g data-units="d">
+              <circle cx="128" cy="128" r="74" fill="none" stroke="#e13e78" strokeWidth="12" opacity="0.1" />
+              <circle cx="128" cy="128" r="74" fill="none" stroke="url(#pc-red)" strokeWidth="12"
+                      strokeDasharray="465 465" strokeDashoffset={(1-dayProgress)*465}
+                      strokeLinecap="round" transform="rotate(-90,128,128)" />
+            </g>
+            <g data-units="h">
+              <circle cx="128" cy="128" r="90" fill="none" stroke="#e79742" strokeWidth="12" opacity="0.1" />
+              <circle cx="128" cy="128" r="90" fill="none" stroke="url(#pc-yellow)" strokeWidth="12"
+                      strokeDasharray="565.5 565.5" strokeDashoffset={(1-hourProgress)*565.5}
+                      strokeLinecap="round" transform="rotate(-90,128,128)" />
+            </g>
+            <g data-units="m">
+              <circle cx="128" cy="128" r="106" fill="none" stroke="#4483ec" strokeWidth="12" opacity="0.1" />
+              <circle cx="128" cy="128" r="106" fill="none" stroke="url(#pc-blue)" strokeWidth="12"
+                      strokeDasharray="666 666" strokeDashoffset={(1-minProgress)*666}
+                      strokeLinecap="round" transform="rotate(-90,128,128)" />
+            </g>
+            <g data-units="s">
+              <circle cx="128" cy="128" r="122" fill="none" stroke="#8f30eb" strokeWidth="12" opacity="0.1" />
+              <circle cx="128" cy="128" r="122" fill="none" stroke="url(#pc-purple)" strokeWidth="12"
+                      strokeDasharray="766.5 766.5" strokeDashoffset={(1-secProgress)*766.5}
+                      strokeLinecap="round" transform="rotate(-90,128,128)" />
+            </g>
+          </svg>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<ColorfulClock />, document.getElementById('root'));
+
+    // Esperar a que React renderice completamente
+    setTimeout(() => {
+      const clock = document.getElementById('clock');
+      if (!clock) return;
+
+      const elements = clock.querySelectorAll('[data-group]');
+      const ringGroups = clock.querySelectorAll('.progress-clock__rings g');
+
+      elements.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          const group = el.getAttribute('data-group');
+
+          // Mostrar solo el anillo correspondiente
+          ringGroups.forEach(g => {
+            g.style.opacity = g.getAttribute('data-units') === group ? '1' : '0';
+          });
+
+          // Aplicar color y opacidad
+          elements.forEach(other => {
+            other.classList.remove('color-day', 'color-hour', 'color-minute', 'color-second');
+            other.style.opacity = other === el ? '1' : '0.3';
+          });
+
+          if (group === 'd') el.classList.add('color-day');
+          if (group === 'h') el.classList.add('color-hour');
+          if (group === 'm') el.classList.add('color-minute');
+          if (group === 's') el.classList.add('color-second');
+
+          // Atenuar separadores y AM/PM
+          clock.querySelectorAll('.progress-clock__time-colon, .progress-clock__time-ampm')
+            .forEach(e => e.style.opacity = '0.3');
+        });
+
+        el.addEventListener('mouseleave', () => {
+          ringGroups.forEach(g => g.style.opacity = '1');
+          elements.forEach(o => {
+            o.style.opacity = '1';
+            o.classList.remove('color-day', 'color-hour', 'color-minute', 'color-second');
+          });
+          clock.querySelectorAll('.progress-clock__time-colon, .progress-clock__time-ampm')
+            .forEach(e => e.style.opacity = '1');
+        });
+      });
+    }, 500);
+  </script>
+</body>
+</html>
